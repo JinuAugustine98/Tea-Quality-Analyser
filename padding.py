@@ -1,9 +1,9 @@
 import cv2 as cv
 
-def pad(src):
+def pad(input_image, save_path):
     # imageName = '/Users/jinuaugustine/Downloads/out.png'
 
-    # src = cv.imread(cv.samples.findFile(imageName), cv.IMREAD_COLOR)
+    src = cv.imread(cv.samples.findFile(input_image), cv.IMREAD_COLOR)
 
     borderType = cv.BORDER_CONSTANT
 
@@ -16,5 +16,6 @@ def pad(src):
             
     dst = cv.copyMakeBorder(src, top, bottom, left, right, borderType, None, value)
 
-    cv.imwrite('/Users/jinuaugustine/Documents/Fine Leaf/Processing/resized.png', dst)
-    return dst
+    path = save_path+'/padded.png'
+    cv.imwrite(path, dst)
+    return None

@@ -5,7 +5,7 @@ import numpy as np
 import imutils
 import cv2
 
-def smart_measure(img_path):
+def smart_measure(img_path, save_path):
     # Read image and preprocess
     image = cv2.imread(img_path)
 
@@ -59,6 +59,7 @@ def smart_measure(img_path):
         cv2.putText(image, "{:.1f}cm".format(ht), (int(mid_pt_verticle[0] + 10), int(mid_pt_verticle[1])), 
             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 0), 2)
 
-    cv2.imwrite('/Users/jinuaugustine/Documents/Fine Leaf/Processing/measured.jpg', image)
+    path = save_path+'/measured.jpg'
+    cv2.imwrite(path, image)
     return pixel_cm2
 

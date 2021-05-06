@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-def colorify(image):
+def colorify(input_image, save_path):
     # read the image
-    # image = cv2.imread("/Users/jinuaugustine/Downloads/resized.png")
+    image = cv2.imread(input_image)
 
     # convert to RGB
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -33,5 +33,6 @@ def colorify(image):
     # reshape back to the original image dimension
     segmented_image = segmented_image.reshape(image.shape)
 
-    cv2.imwrite('/Users/jinuaugustine/Documents/Fine Leaf/Processing/generated.jpg', segmented_image)
+    path = save_path+'/dominant_color.jpg'
+    cv2.imwrite(path, segmented_image)
     return segmented_image

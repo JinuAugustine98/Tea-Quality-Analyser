@@ -1,7 +1,7 @@
 from PIL import Image
 
-def resizer(image):
-    # image = Image.open('/Users/jinuaugustine/Downloads/det_leaf.jpg', 'r')
+def resizer(input_image, save_path):
+    image = Image.open(input_image, 'r')
     image_size = image.size
     width = image_size[0]
     height = image_size[1]
@@ -13,9 +13,6 @@ def resizer(image):
         offset = (int(round(((bigside - width) / 2), 0)), int(round(((bigside - height) / 2),0)))
 
         background.paste(image, offset)
-        background.save('/Users/jinuaugustine/Documents/Fine Leaf/Processing/out.png')
-        print("Image has been resized !")
-
-    else:
-        print("Image is already a square, it has not been resized !")
-    return background
+        path = save_path+'/resized.png'
+        background.save(path)
+    return None

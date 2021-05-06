@@ -1,46 +1,103 @@
+import os
 import cv2
 import pandas as pd 
+import mysql.connector
+from mysql.connector import connect, Error
 from measure import smart_measure
 from crop import box_crop
+from color_profiler import DominantColors
 from resize import resizer
 from padding import pad
 from dominant_color import colorify
-from color_profiler import profiler
 from contour import contour_area
+
+
+try:
+    with connect(
+        host="soli-db.ciksb20swlbf.ap-south-1.rds.amazonaws.com",
+        user='teaquality',
+        password='Quality@123',
+        database="db_tea_quality_record",
+    ) as connection:
+        print("MySQL Database Connected Successfully!")
+except Error as e:
+    print(e)
 
 test_image = '/Users/jinuaugustine/Downloads/test4.jpeg'
 detected_leaf_coordinates = '/Users/jinuaugustine/Downloads/conoor.csv'
 
 df = pd.read_csv(detected_leaf_coordinates)
 no_leaves = len(df.index)
+batch = 1
 
-calibration = smart_measure(test_image)
-print("Detected Calibration: {} pixel/cm2".format(calibration))
+parent_dir1 = "/Users/jinuaugustine/Documents/Tea-Quality-Analyser/Processing"
+directory1 = "Leaf Batch {}".format(batch)
+path = os.path.join(parent_dir1, directory1)
+os.mkdir(path)
+print("\nDirectory {} created".format(directory1))
+
+parent_dir2 = "/Users/jinuaugustine/Documents/Tea-Quality-Analyser/Processing/Leaf Batch {}".format(batch)
+
+calibration = smart_measure(test_image, parent_dir2)
+print("\nDetected Calibration: {}pixel/cm2".format(calibration))
 
 print("\n\nCropping Detected {} Leaves.....".format(no_leaves))
-box_crop(test_image, detected_leaf_coordinates)
+box_crop(test_image, detected_leaf_coordinates, parent_dir2)
 
 print("\n\nStarting Pre-Processing of Cropped Leaves.....")
 
 j = 1
 for x in range(no_leaves):
-    img_path = "/Users/jinuaugustine/Documents/Fine Leaf/Processing/detected_leaf_"+str(j)+".jpg"
-    img = cv2.imread(img_path)
 
-    print("Analysing Color Profile of Leaf {}".format(j))
-    profiler(img)
+    img_path = "/Users/jinuaugustine/Documents/Tea-Quality-Analyser/Processing/Leaf Batch {}/Leaf No. {}".format(batch, j)
 
-    print("Resizing Leaf {}".format(j))
-    resized_img = resizer(img)
+    profile_path = img_path+"/detected_leaf.jpg"
+    print("\nAnalysing Color Profile of Leaf {}".format(j))
 
-    print("Padding Leaf {}".format(j))
-    padded_image = pad(resized_img)
+    clusters = 5
+    dc = DominantColors(profile_path, img_path, clusters)
+    colors = dc.dominantColors()
+    print(colors)
+    hist = dc.plotHistogram()
 
-    print("Finding Dominant Color of Leaf {}".format(j))
-    colored_img = colorify(padded_image)
+    c_prof = colors.tolist()
+    
+    dr1 = c_prof[0][0]
+    dg1 = c_prof[0][1]
+    db1 = c_prof[0][2]
 
-    print("Finding Contour and Area of Leaf {}".format(j))
-    contour_area(colored_img)
+    dr2 = c_prof[1][0]
+    dg2 = c_prof[1][1]
+    db2 = c_prof[1][2]
+
+    dr3 = c_prof[2][0]
+    dg3 = c_prof[2][1]
+    db3 = c_prof[2][2]
+
+    dr4 = c_prof[3][0]
+    dg4 = c_prof[3][1]
+    db4 = c_prof[3][2]
+
+    dr5 = c_prof[4][0]
+    dg5 = c_prof[4][1]
+    db5 = c_prof[4][2]
+
+    print("\nResizing Leaf {}".format(j))
+    resizer(profile_path, img_path)
+
+    pad_path = img_path+'/resized.png'
+    print("\nPadding Leaf {}".format(j))
+    pad(pad_path, img_path)
+
+    color_path = img_path+'/padded.png'
+    print("\nFinding Dominant Color of Leaf {}".format(j))
+    colorify(color_path, img_path)
+
+    contour_path = img_path+'/dominant_color.jpg'
+    print("\nFinding Contour and Area of Leaf {}".format(j))
+    contour_area(contour_path, img_path)
+
+    j+=1
 
     
 
