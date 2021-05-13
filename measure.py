@@ -36,11 +36,13 @@ def smart_measure(img_path, save_path):
     box = np.array(box, dtype="int")
     box = perspective.order_points(box)
     (tl, tr, br, bl) = box
-    dist_in_pixel = euclidean(tl, tr)
-    dist_in_cm = 2
-    pixel_per_cm = dist_in_pixel/dist_in_cm
-
-    pixel_cm2 = pixel_per_cm*pixel_per_cm
+    dist_in_pixel1 = euclidean(tl, tr)
+    dist_in_pixel2 = euclidean(bl, br)
+    pixel_area = dist_in_pixel1*dist_in_pixel2
+    dist_in_cm = 2.3
+    pixel_per_cm = dist_in_pixel1/dist_in_cm
+    cm_area = dist_in_cm*dist_in_cm
+    pixel_cm2 = pixel_area/cm_area
 
     # Draw remaining contours
     for cnt in cnts:
